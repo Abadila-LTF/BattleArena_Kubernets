@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: battlearena-simulator
+  namespace: battlearena
+  labels:
+    app: battlearena-simulator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: battlearena-simulator
+  template:
+    metadata:
+      labels:
+        app: battlearena-simulator
+    spec:
+      containers:
+      - name: simulator
+        image: alaktif9/battlearena-simulator:latest
+        imagePullPolicy: Always
+        env:
+        - name: API_URL
+          value: "http://battlearena-api-service"
+        - name: SIMULATION_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: battlearena-config
+              key: SIMULATION_MODE
+        - name: CYCLE_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: battlearena-config
+              key: CYCLE_INTERVAL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: battlearena-config
+  namespace: battlearena
+data:
+  LOG_LEVEL: "info"
+  SIMULATION_MODE: "normal"
+  CYCLE_INTERVAL: "60"
+  POSTGRES_DB: "battlearena"

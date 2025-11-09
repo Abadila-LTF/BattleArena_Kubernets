@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: battlearena-api
+  namespace: battlearena
+  labels:
+    app: battlearena-api
+spec:
+  replicas: 3  # Run 3 replicas for load balancing
+  selector:
+    matchLabels:
+      app: battlearena-api
+  template:
+    metadata:
+      labels:
+        app: battlearena-api
+    spec:
+      containers:
+      - name: api
+        image: battlearena-api:latest
+        imagePullPolicy: Never  # Use local image (loaded into Kind)
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: battlearena-secret
+              key: DATABASE_URL
+        - name: LOG_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: battlearena-config
+              key: LOG_LEVEL
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: battlearena-api-service
+  namespace: battlearena
+spec:
+  selector:
+    app: battlearena-api
+  ports:
+  - port: 80
+    targetPort: 8000
+    nodePort: 30000  # Accessible from host at localhost:8000
+    protocol: TCP
+  type: NodePort
