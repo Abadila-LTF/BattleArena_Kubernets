@@ -3,7 +3,7 @@ from flask import Flask
 
 app = Flask(__name__)
 
-@app.route('/heath')
+@app.route('/')
 def index():
     return 'Up'
 
@@ -16,7 +16,7 @@ import os
 
 app = Flask(__name__)
 
-@app.route('/heath')
+@app.route('/)
 def index():
     pod_name = os.getenv("HOSTNAME")  
     pod_ip = request.remote_addr 

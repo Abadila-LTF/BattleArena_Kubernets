@@ -1,6 +1,6 @@
 # 🎮 BattleArena - GKE (Google Kubernetes Engine) Deployment
 
-Production-ready deployment of BattleArena on Google Kubernetes Engine with comprehensive observability stack.
+Production-ready deployment of BattleArena on Google Kubernetes Engine (GKE).
 
 ## 📋 Overview
 
@@ -12,7 +12,6 @@ This directory contains Kubernetes manifests optimized for deployment on Google 
 - **StatefulSet for PostgreSQL** with persistent storage
 - **Service discovery** and load balancing
 - **Persistent volumes** for database data
-- **Observability stack** (Prometheus, Grafana, Alertmanager)
 
 ## 🚀 Quick Start - GKE Deployment
 
@@ -84,7 +83,7 @@ kubectl apply -f 02-secret.yaml
 kubectl apply -f 04-postgres-deployment.yaml
 
 # Wait for database to be ready
-kubectl wait --for=condition=available --timeout=300s deployment/postgres-deployment -n battlearena
+kubectl wait --for=condition=available --timeout=300s deployment/postgres -n battlearena
 
 # Deploy API
 kubectl apply -f 05-api-deployment.yaml
@@ -93,15 +92,6 @@ kubectl apply -f 05-api-deployment.yaml
 kubectl apply -f 06-simulator-deployment.yaml
 ```
 
-### 4. Set Up Observability
-
-```bash
-# Deploy monitoring stack
-kubectl apply -f ../../../monitoring/
-
-# Wait for all deployments
-kubectl wait --for=condition=available --timeout=300s deployment --all -n battlearena
-```
 
 ### 5. Access the Application
 
@@ -140,17 +130,7 @@ Update the secret in `02-secret.yaml` with your database credentials.
 ### Storage Class
 Update `03-postgres-pvc.yaml` to use the appropriate storage class for your GKE zone.
 
-## 📊 Monitoring & Observability
 
-The deployment includes:
-- **Prometheus** for metrics collection
-- **Grafana** for dashboards and visualization
-- **Alertmanager** for alerting
-
-Access points:
-- **API**: LoadBalancer IP or port-forward to 8000
-- **Grafana**: LoadBalancer IP or port-forward to 3000 (admin/admin123)
-- **Prometheus**: LoadBalancer IP or port-forward to 9090
 
 ## 🛠️ Operations
 
@@ -196,7 +176,6 @@ kubectl get events -n battlearena
 - **High Availability**: Multi-replica deployments
 - **Persistent Storage**: StatefulSet with PVC
 - **Load Balancing**: Kubernetes services with LoadBalancer
-- **Monitoring**: Comprehensive observability stack
 - **Scalability**: Horizontal pod autoscaling ready
 
 ## 🆘 Troubleshooting
@@ -226,11 +205,112 @@ kubectl get events -n battlearena --sort-by=.metadata.creationTimestamp
 ## 🎯 Next Steps
 
 1. **CI/CD Pipeline**: Set up automated deployment from GitHub/GitLab
-2. **Monitoring Alerts**: Configure alerting rules for production
-3. **Backup Strategy**: Implement database backups
-4. **Security**: Add network policies and RBAC
-5. **Scaling**: Configure horizontal pod autoscaling
+2. **Backup Strategy**: Implement database backups
+3. **Security**: Add network policies and RBAC
+4. **Scaling**: Configure horizontal pod autoscaling
 
 ---
 
-**This GKE deployment provides a production-ready foundation for the BattleArena gaming platform with comprehensive monitoring and observability!** 🚀
+## 📝 Exercises for Students
+
+Practice what you've learned with these hands-on exercises:
+
+### Exercise 1: Create Three Environments 🌍
+
+Create three separate environments (dev, staging, prod) running the same application:
+
+**Tasks:**
+1. Create three namespaces: `battlearena-dev`, `battlearena-staging`, `battlearena-prod`
+2. Deploy the application to each namespace
+3. Use different ConfigMaps for each environment (e.g., different `LOG_LEVEL`)
+4. Verify all three environments are running independently
+
+**Hints:**
+```bash
+# Create namespaces
+kubectl create namespace battlearena-dev
+kubectl create namespace battlearena-staging
+kubectl create namespace battlearena-prod
+
+# Deploy to each (modify the namespace in manifests or use -n flag)
+kubectl apply -f . -n battlearena-dev
+```
+
+**Verification:**
+```bash
+kubectl get pods -n battlearena-dev
+kubectl get pods -n battlearena-staging
+kubectl get pods -n battlearena-prod
+```
+
+---
+
+### Exercise 2: Implement Resource Limits 📊
+
+Configure proper resource requests and limits for production:
+
+**Tasks:**
+1. Set memory requests to `256Mi` and limits to `512Mi` for the API
+2. Set CPU requests to `200m` and limits to `500m` for the API
+3. Apply changes and verify pods are running with new limits
+4. Use `kubectl top pods` to monitor actual usage
+
+**Expected outcome:** Pods should run with defined resource boundaries.
+
+---
+
+### Exercise 3: Rolling Update with Zero Downtime 🔄
+
+Practice deploying a new version without downtime:
+
+**Tasks:**
+1. Build a new version of the API image (tag it as `v2`)
+2. Push to Docker Hub
+3. Perform a rolling update
+4. Monitor the rollout progress
+5. If something goes wrong, rollback to the previous version
+
+**Commands to use:**
+```bash
+# Update image
+kubectl set image deployment/battlearena-api api=<your-image>:v2 -n battlearena
+
+# Watch rollout
+kubectl rollout status deployment/battlearena-api -n battlearena
+
+# Rollback if needed
+kubectl rollout undo deployment/battlearena-api -n battlearena
+```
+
+---
+
+### Exercise 4: Horizontal Pod Autoscaling (HPA) ⚡
+
+Configure automatic scaling based on CPU usage:
+
+**Tasks:**
+1. Create an HPA for the API deployment
+2. Set min replicas to 2, max to 10
+3. Target CPU utilization at 50%
+4. Generate load and observe scaling
+
+**Create HPA:**
+```bash
+kubectl autoscale deployment battlearena-api \
+  --cpu=50% \
+  --min=2 \
+  --max=10 \
+  -n battlearena
+```
+
+**Monitor:**
+```bash
+kubectl get hpa -n battlearena -w
+```
+
+
+---
+
+**🎉 Congratulations on completing the Kubernetes learning path!**
+
+You've progressed from basic concepts (`k8s-demo/`) → local deployment (`k8s/`) → cloud production (`k8s_cloud/`). Keep practicing and exploring! 🚀

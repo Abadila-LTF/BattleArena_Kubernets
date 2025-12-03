@@ -1,6 +1,44 @@
 # 🎮 BattleArena Kubernetes - Production-Ready Gaming Platform
 
-A complete, production-ready multiplayer gaming platform deployed on Kubernetes with comprehensive observability, monitoring, and scaling capabilities.
+A complete, production-ready multiplayer gaming platform deployed on Kubernetes with comprehensive scaling and high availability capabilities.
+
+## 🗺️ Learning Roadmap
+
+This project is structured as a progressive learning path for Kubernetes:
+
+### **Step 1: Kubernetes Basics (`k8s-demo/`)**
+Start here to learn fundamental Kubernetes concepts:
+- Basic Pods and Deployments
+- Services (ClusterIP, LoadBalancer)
+- Container networking and service discovery
+- Hands-on examples with simple applications
+
+**Location:** `k8s-demo/` folder  
+**See:** `k8s-demo/readme.md` for detailed instructions
+
+### **Step 2: Local Kubernetes Deployment (`k8s/`)**
+Deploy the full BattleArena application on a local Kubernetes cluster using Kind:
+- Multi-replica Deployments
+- Persistent Volumes (PVCs)
+- ConfigMaps and Secrets
+- Service discovery and load balancing
+- Health checks and resource management
+
+**Location:** `k8s/` folder  
+**See:** `k8s/README.md` for detailed instructions  
+**Cluster:** Local Kind cluster
+
+### **Step 3: Cloud Deployment (`k8s_cloud/`)**
+Deploy to Google Kubernetes Engine (GKE) for production:
+- Cloud-native deployments
+- Multi-platform container images
+- LoadBalancer services
+- Production-ready configurations
+
+**Location:** `k8s_cloud/` folder  
+**See:** `k8s_cloud/README.md` for GKE-specific instructions
+
+---
 
 ## 🚀 Quick Start (10 minutes)
 
@@ -49,16 +87,15 @@ This project teaches you:
 
 ### **Production Operations**
 - **High Availability**: Multi-replica deployments with health checks
-- **Scaling**: Horizontal pod autoscaling and manual scaling
-- **Monitoring**: Prometheus metrics collection and Grafana dashboards
-- **Alerting**: Alertmanager for proactive issue detection
-- **Service Mesh**: Internal networking and service discovery
+- **Scaling**: Horizontal pod scaling and manual scaling
+- **Service Discovery**: Internal networking with DNS-based service discovery
+- **Load Balancing**: External and internal load balancing
 
 ### **DevOps Best Practices**
 - **Infrastructure as Code**: Kubernetes manifests for reproducible deployments
 - **Container Orchestration**: Managing containerized applications at scale
-- **Observability**: Comprehensive monitoring and logging
-- **Security**: Secrets management and network policies
+- **Configuration Management**: ConfigMaps and Secrets for application settings
+- **Security**: Secrets management and resource limits
 
 ---
 
@@ -75,10 +112,10 @@ This project teaches you:
 │  └─────────────────┘    └─────────────────┘    └─────────────┘ │
 │           │                       │                   │        │
 │           ▼                       ▼                   ▼        │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐ │
-│  │   API Service   │    │   DB Service    │    │  Monitoring │ │
-│  │  (LoadBalancer) │    │  (ClusterIP)    │    │   Stack     │ │
-│  └─────────────────┘    └─────────────────┘    └─────────────┘ │
+│  ┌─────────────────┐    ┌─────────────────┐                    │
+│  │   API Service   │    │   DB Service    │                    │
+│  │  (LoadBalancer) │    │  (ClusterIP)    │                    │
+│  └─────────────────┘    └─────────────────┘                    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -101,12 +138,6 @@ This project teaches you:
    - Configurable simulation modes
    - Tests system under load
 
-4. **Monitoring Stack** (Prometheus + Grafana)
-   - Real-time metrics collection
-   - Interactive dashboards
-   - Alerting and notification system
-   - Performance monitoring
-
 ---
 
 ## 📊 Kubernetes Resources
@@ -118,17 +149,13 @@ This project teaches you:
 | `battlearena-api` | Deployment | API server | 3 |
 | `postgres` | Deployment | Database | 1 |
 | `battlearena-simulator` | Deployment | Traffic generator | 1 |
-| `prometheus` | Deployment | Metrics collection | 1 |
-| `grafana` | Deployment | Dashboards | 1 |
 
 ### **Services & Networking**
 
 | Service | Type | Purpose | Port |
 |---------|------|---------|------|
-| `battlearena-api-service` | LoadBalancer | External API access | 80→8000 |
+| `battlearena-api-service` | NodePort/LoadBalancer | External API access | 80→8000 |
 | `postgres-service` | ClusterIP | Database access | 5432 |
-| `prometheus-service` | ClusterIP | Metrics access | 9090 |
-| `grafana-service` | ClusterIP | Dashboard access | 3000 |
 
 ### **Storage & Configuration**
 
@@ -164,7 +191,6 @@ This project teaches you:
 
 ### **System Health**
 - `GET /health` - Health check with database connectivity
-- `GET /metrics` - Prometheus metrics endpoint
 
 ---
 
@@ -174,14 +200,9 @@ This project teaches you:
 - **High Availability**: 3-replica API deployment with health checks
 - **Persistent Storage**: PVC for database durability
 - **Service Discovery**: Internal networking with DNS-based service discovery
-- **Load Balancing**: External LoadBalancer for public access
+- **Load Balancing**: External LoadBalancer/NodePort for public access
 - **Auto-Recovery**: Automatic pod restart on failures
-
-### **Comprehensive Monitoring**
-- **Prometheus Metrics**: 20+ custom metrics for business and system monitoring
-- **Grafana Dashboards**: Real-time visualization of system performance
-- **Alertmanager**: Proactive alerting for critical issues
-- **Health Checks**: Kubernetes-native health monitoring
+- **Health Checks**: Kubernetes-native liveness and readiness probes
 
 ### **Scalability & Performance**
 - **Horizontal Scaling**: Easy replica scaling with `kubectl scale`
@@ -246,49 +267,6 @@ open http://localhost:8000/docs
 
 ---
 
-## 📈 Monitoring & Observability
-
-### **Prometheus Metrics**
-
-**HTTP Metrics:**
-- `http_requests_total` - Total requests by method, endpoint, status
-- `http_request_duration_seconds` - Request latency histogram
-
-**Player Metrics:**
-- `active_players_count` - Current active players (last 5 min)
-- `player_registrations_total` - Total registrations
-- `player_logins_total` - Total logins
-
-**Match Metrics:**
-- `matches_total` - Total matches by type and status
-- `matches_in_progress` - Current active matches
-- `match_duration_seconds` - Match duration histogram
-- `matches_crashed_total` - Total crashed matches
-
-**Transaction Metrics:**
-- `transactions_total` - Total transactions by type and status
-- `revenue_total_usd` - Total revenue
-- `transaction_failure_rate` - Failure rate percentage
-
-### **Grafana Dashboards**
-
-Access Grafana at `http://localhost:3000` (admin/admin123):
-- **System Overview**: Real-time system performance
-- **Player Analytics**: User engagement metrics
-- **Match Performance**: Game session analytics
-- **Revenue Tracking**: Business metrics
-- **Infrastructure**: Kubernetes resource usage
-
-### **Alerting**
-
-Alertmanager provides proactive monitoring:
-- API health and response time alerts
-- Database connectivity issues
-- High error rates and system failures
-- Resource usage thresholds
-
----
-
 ## 🔧 Deployment Operations
 
 ### **Scaling Operations**
@@ -305,7 +283,7 @@ kubectl set image deployment/battlearena-api \
 kubectl rollout restart deployment/battlearena-api -n battlearena
 ```
 
-### **Monitoring Operations**
+### **Operations & Debugging**
 
 ```bash
 # View logs
@@ -319,8 +297,6 @@ kubectl get events -n battlearena
 
 # Port-forward for local access
 kubectl port-forward -n battlearena svc/battlearena-api-service 8000:8000
-kubectl port-forward -n battlearena svc/grafana-service 3000:3000
-kubectl port-forward -n battlearena svc/prometheus-service 9090:9090
 ```
 
 ---
@@ -334,7 +310,7 @@ The simulator creates realistic gaming traffic:
 - **Player Logins**: Simulates user sessions with realistic patterns
 - **Match Events**: Creates and completes matches with various outcomes
 - **Transactions**: Generates in-game purchases with failure simulation
-- **System Events**: Logs errors and activities for monitoring
+- **System Events**: Logs errors and activities for debugging
 
 ### **Simulation Modes**
 - **Normal**: Balanced traffic (default)
@@ -375,17 +351,17 @@ env:
   value: "new_value"
 ```
 
-### **Customizing Monitoring**
+### **Customizing Resource Limits**
 
-Edit `monitoring/prometheus/alerts.yml`:
+Edit deployment files to adjust resource requests and limits:
 ```yaml
-- alert: YourCustomAlert
-  expr: your_metric > threshold
-  for: 5m
-  labels:
-    severity: warning
-  annotations:
-    summary: "Your custom alert"
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "200m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
 ```
 
 ---
@@ -447,13 +423,8 @@ kubectl get events -n battlearena --sort-by=.metadata.creationTimestamp
 
 ### **Production Operations**
 - [Kubernetes Best Practices](https://kubernetes.io/docs/concepts/configuration/overview/)
-- [Monitoring Kubernetes](https://kubernetes.io/docs/tasks/debug-application-cluster/resource-usage-monitoring/)
 - [Kubernetes Security](https://kubernetes.io/docs/concepts/security/)
-
-### **Monitoring & Observability**
-- [Prometheus Documentation](https://prometheus.io/docs/)
-- [Grafana Documentation](https://grafana.com/docs/)
-- [Kubernetes Monitoring](https://kubernetes.io/docs/tasks/debug-application-cluster/resource-usage-monitoring/)
+- [Resource Management](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
 
 ---
 
@@ -464,8 +435,8 @@ This Kubernetes deployment demonstrates:
 ✅ **Production-Ready Infrastructure**: Multi-replica deployments with health checks  
 ✅ **High Availability**: Automatic failover and recovery  
 ✅ **Scalability**: Horizontal scaling and load balancing  
-✅ **Observability**: Comprehensive monitoring and alerting  
-✅ **Security**: Secrets management and network policies  
+✅ **Configuration Management**: ConfigMaps and Secrets for application settings  
+✅ **Security**: Secrets management and resource limits  
 ✅ **DevOps Practices**: Infrastructure as code and automated deployments  
 
 ---
@@ -473,16 +444,16 @@ This Kubernetes deployment demonstrates:
 ## 🚀 Next Steps
 
 ### **Immediate Actions**
-1. **Explore the System**: Access Grafana dashboards and Prometheus metrics
-2. **Test Scaling**: Scale replicas and observe behavior
-3. **Monitor Performance**: Watch metrics during load testing
+1. **Start with Basics**: Explore `k8s-demo/` to understand fundamental concepts
+2. **Deploy Locally**: Use Kind to deploy the full application
+3. **Test Scaling**: Scale replicas and observe behavior
 4. **Deploy to Cloud**: Try GKE deployment with LoadBalancer
 
 ### **Learning Extensions**
 1. **Add CI/CD**: Implement GitLab CI/CD for automated deployments
 2. **Implement Security**: Add network policies and RBAC
 3. **Add Caching**: Implement Redis for performance optimization
-4. **Advanced Monitoring**: Add distributed tracing with Jaeger
+4. **Add StatefulSets**: Convert PostgreSQL to StatefulSet for better state management
 
 ### **Advanced Topics**
 1. **Service Mesh**: Implement Istio for advanced networking
@@ -495,7 +466,7 @@ This Kubernetes deployment demonstrates:
 ## 📄 Project Structure
 
 ```
-2-battlearena_k8s/
+BattleArena_Kubernets/
 ├── app/                    # FastAPI application
 │   ├── api.py             # Main API with all endpoints
 │   ├── models.py          # Database models (5 tables)
@@ -504,7 +475,13 @@ This Kubernetes deployment demonstrates:
 │   └── config.py          # Configuration management
 ├── simulator/             # Traffic simulation
 │   └── simulator.py       # Main simulator logic (includes auto-seeding)
-├── k8s/                   # Local Kubernetes manifests (Kind)
+├── k8s-demo/              # Step 1: Kubernetes learning examples
+│   ├── k8s_deployment.yaml # Basic deployment example
+│   ├── ClusterIP.yaml     # Service example
+│   ├── LoadBalancer.yaml  # LoadBalancer example
+│   ├── curl-pod.yaml      # Testing pod
+│   └── readme.md          # Learning guide
+├── k8s/                   # Step 2: Local Kubernetes manifests (Kind)
 │   ├── 00-namespace.yaml  # Namespace creation
 │   ├── 01-configmap.yaml  # Application configuration
 │   ├── 02-secret.yaml     # Database credentials
@@ -512,7 +489,7 @@ This Kubernetes deployment demonstrates:
 │   ├── 04-postgres-deployment.yaml # PostgreSQL Deployment
 │   ├── 05-api-deployment.yaml # API Deployment (3 replicas)
 │   └── 06-simulator-deployment.yaml # Simulator Deployment
-├── k8s_cloud/             # Cloud Kubernetes manifests (GKE)
+├── k8s_cloud/             # Step 3: Cloud Kubernetes manifests (GKE)
 │   ├── 00-namespace.yaml  # Namespace creation
 │   ├── 01-configmap.yaml  # Application configuration
 │   ├── 02-secret.yaml     # Database credentials
@@ -521,11 +498,6 @@ This Kubernetes deployment demonstrates:
 │   ├── 05-api-deployment.yaml # API Deployment (Docker Hub images)
 │   ├── 06-simulator-deployment.yaml # Simulator Deployment
 │   └── README.md          # GKE deployment guide
-├── k8s-demo/              # Kubernetes learning examples
-│   ├── k8s_deployment.yaml # Basic deployment example
-│   ├── ClusterIP.yaml     # Service example
-│   ├── LoadBalancer.yaml  # LoadBalancer example
-│   └── curl-pod.yaml      # Testing pod
 ├── kind-config.yaml       # Kind cluster configuration
 └── requirements.txt       # Python dependencies
 ```
@@ -541,7 +513,7 @@ After working with this project, you should understand:
 - ✅ Service discovery and load balancing
 - ✅ Persistent storage with PVCs
 - ✅ Configuration and secrets management
-- ✅ Monitoring and observability in Kubernetes
+- ✅ Health checks and resource management
 - ✅ Scaling and high availability concepts
 - ✅ Production-ready deployment patterns
 
